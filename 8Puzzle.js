@@ -1,84 +1,72 @@
-class Board {
-  constructor(tiles) {
-    this.tiles = tiles;
-  }
 
-  move(row, col) {
-    const tiles = this.tiles.slice();
-    const emptyIndex = tiles.indexOf(0);
-    const targetIndex = row * 3 + col;
+ var board;
+var emptyRow;
+var emptyCol;
 
-    [tiles[emptyIndex], tiles[targetIndex]] = [tiles[targetIndex], tiles[emptyIndex]];
+function startGame() {
+  board = [    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, null]
+  ];
+  emptyRow = 2;
+  emptyCol = 2;
+  renderBoard();
+}
 
-    return new Board(tiles);
-  }
-
-  getTile(row, col) {
-    return this.tiles[row * 3 + col];
-  }
-
-  toString() {
-    let str = '';
-    for (let i = 0; i < 9; i += 3) {
-      str += `${this.tiles[i]} ${this.tiles[i+1]} ${this.tiles[i+2]}\n`;
-    }
-    return str;
-  }
-
-  isSolved() {
-    for (let i = 0; i < 8; i++) {
-      if (this.tiles[i] !== i + 1) {
-        return false;
+function renderBoard() {
+  var table = document.getElementById("board");
+  table.innerHTML = "";
+  for (var row = 0; row < 3; row++) {
+    var tr = document.createElement("tr");
+    for (var col = 0; col < 3; col++) {
+      var td = document.createElement("td");
+      td.innerHTML = board[row][col] || "";
+      if (board[row][col] === null) {
+        td.classList.add("empty");
       }
+      tr.appendChild(td);
     }
-    return true;
+    table.appendChild(tr);
   }
 }
 
-class Solver {
-  constructor(initialBoard) {
-    this.initialBoard = initialBoard;
+function shuffle() {
+  for (var i = 0; i < 1000; i++) {
+    var neighbors = getNeighbors(emptyRow, emptyCol);
+    var randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+    swap(emptyRow, emptyCol, randomNeighbor[0], randomNeighbor[1]);
+    emptyRow = randomNeighbor[0];
+    emptyCol = randomNeighbor[1];
   }
-
-  solve() {
-    const queue = [];
-    queue.push({ board: this.initialBoard, moves: 0 });
-
-    while (queue.length > 0) {
-      const { board, moves } = queue.shift();
-
-      if (board.isSolved()) {
-        return moves;
-      }
-
-      const emptyIndex = board.tiles.indexOf(0);
-      const row = Math.floor(emptyIndex / 3);
-      const col = emptyIndex % 3;
-
-      if (row > 0) {
-        const newBoard = board.move(row - 1, col);
-        queue.push({ board: newBoard, moves: moves + 1 });
-      }
-      if (row < 2) {
-        const newBoard = board.move(row + 1, col);
-        queue.push({ board: newBoard, moves: moves + 1 });
-      }
-      if (col > 0) {
-        const newBoard = board.move(row, col - 1);
-        queue.push({ board: newBoard, moves: moves + 1 });
-      }
-      if (col < 2) {
-        const newBoard = board.move(row, col + 1);
-        queue.push({ board: newBoard, moves: moves + 1 });
-      }
-    }
-
-    return -1; // unsolvable
-  }
+  renderBoard();
 }
 
-// Example usage:
-const initialBoard = new Board([1, 2, 3, 4, 0, 6, 7, 5, 8]);
-const solver = new Solver(initialBoard);
-const numMoves = solver.solve();
-console.log(`Number of moves required to solve: ${numMoves}`);
+function getNeighbors(row, col) {
+  var neighbors = [];
+  if (row > 0) {
+    neighbors.push([row - 1, col]);
+  }
+  if (row < 2) {
+    neighbors.push([row + 1, col]);
+  }
+  if (col > 0) {
+    neighbors.push([row, col - 1]);
+  }
+  if (col < 2) {
+    neighbors.push([row, col + 1]);
+  }
+  return neighbors;
+}
+
+function swap(row1, col1, row2, col2) {
+  var temp = board[row1][col1];
+  board[row1][col1] = board[row2][col2];
+  board[row2][col2] = temp;
+}
+
+function solve() {
+  alert("Solving...");
+  // Implement the A* algorithm or any other algorithm to solve the puzzle
+}
+
+startGame();
